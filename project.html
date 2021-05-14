@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        ddd {
+            font-size: 100px;
+        }
+    </style>
+    <script>
+        // 전역 변수(*중요*)
+        var inCanvas, inCtx, outCanvas, outCtx;  // 입력 캔버스 관련
+        var inFile, inImageArray, outImageArray;  // 입력 파일 및 배열
+        var inWidth, inHeight, outWidth, outHeight;  // 입력 영상의 폭과 높이
+        var inPaper, outPaper; // 캔버스에는 한점한점이 안찍힘. 대신 캔버스에 종이를 붙임.
+        var outCanvas2,outCtx2,outImageArray2,outPaper2
+        var outCanvas3,outCtx3,outImageArray3,outPaper3
+        //이미지 열기
+        function openImage() {
+            inCanvas = document.getElementById('inCanvas');
+            inCtx = inCanvas.getContext('2d');
+            outCanvas = document.getElementById('outCanvas');
+            outCtx = outCanvas.getContext('2d');
+            outCanvas2 = document.getElementById('outCanvas2');
+            outCtx2 = outCanvas2.getContext('2d');
+            outCanvas3 = document.getElementById('outCanvas3');
+            outCtx3 = outCanvas3.getContext('2d');
+
+     
+            
+            // 그림파일 --> 이미지 객체
+            var inImage = new Image(); // 빈 이미지 객체 생성
+            inImage.src ="버팔로.jpg";
+            
+            
+       
+
+            inImage.onload = function() {
+                // 입력 파일의 크기를 알아냄 (중요!)
+                inWidth = inImage.width;
+                inHeight = inImage.height;
+                // 캔버스 크기를 결정
+                inCanvas.width = inWidth;
+                inCanvas.height = inHeight;
+                inCtx.drawImage(inImage,0,0,inWidth, inHeight);
+                
+
+                outHeight = inHeight;
+                outWidth = inWidth;
+                // 출력 3차원 배열을 준비
+                outImageArray = new Array(3); // 512짜리 1차원 배열
+                for (var i=0; i<3; i++) {
+                    outImageArray[i] = new Array(outHeight); // 512짜리 1차원 배열
+                    for(var k=0; k<outHeight; k++) 
+                        outImageArray[i][k] = new Array(outWidth);
+                }
+                outImageArray2 = new Array(3); // 512짜리 1차원 배열
+                for (var i=0; i<3; i++) {
+                    outImageArray2[i] = new Array(outHeight); // 512짜리 1차원 배열
+                    for(var k=0; k<outHeight; k++) 
+                        outImageArray2[i][k] = new Array(outWidth);
+                }
+                outImageArray3 = new Array(3); // 512짜리 1차원 배열
+                for (var i=0; i<3; i++) {
+                    outImageArray3[i] = new Array(outHeight); // 512짜리 1차원 배열
+                    for(var k=0; k<outHeight; k++) 
+                        outImageArray3[i][k] = new Array(outWidth);
+                }
+                
+
+
+                // 출력된 캔버스에서 픽셀값 뽑기
+                var imageData = inCtx.getImageData(0,0,outWidth, outHeight);
+                var R,G,B,Alpha;
+                for (var i=0; i<outHeight; i++) {
+                    for(var k=0; k<outWidth; k++) {
+                        px = (i * outWidth + k) * 4; // 1픽셀 = 4byte
+                        R = imageData.data[px + 0];
+                        G = imageData.data[px + 1];
+                        B = imageData.data[px + 2];
+                        // Alpha = imageData.data[px + 3];
+                        outImageArray[0][i][k] = String.fromCharCode(R);
+                        outImageArray[1][i][k] = String.fromCharCode(G);
+                        outImageArray[2][i][k] = String.fromCharCode(B);
+
+                        outImageArray2[0][i][k] = String.fromCharCode(R);
+                        outImageArray2[1][i][k] = String.fromCharCode(G);
+                        outImageArray2[2][i][k] = String.fromCharCode(B);
+
+                        outImageArray3[0][i][k] = String.fromCharCode(R);
+                        outImageArray3[1][i][k] = String.fromCharCode(G);
+                        outImageArray3[2][i][k] = String.fromCharCode(B);
+                    }
+                }
+                displayImage();
+                displayImage2();
+                displayImage3();
+
+            }     
+            
+            
+
+        }
+             
+        function displayImage() {
+              // 캔버스 크기를 결정
+            outCanvas.height = outHeight;
+            outCanvas.width = outWidth;
+
+            var R, G, B;
+            outPaper = outCtx.createImageData(outWidth, outHeight);
+            for(var i=0; i<outHeight; i++) {
+                for (var k=0; k<outWidth; k++) {
+                    R = outImageArray[0][i][k].charCodeAt(0); // Byte 문자를 숫자로.
+                    G = outImageArray[1][i][k].charCodeAt(0); // Byte 문자를 숫자로.
+                    B = outImageArray[2][i][k].charCodeAt(0); // Byte 문자를 숫자로.
+                    outPaper.data[(i*outWidth + k) * 4 + 0] = R;
+                    outPaper.data[(i*outWidth + k) * 4 + 1] = G;
+                    outPaper.data[(i*outWidth + k) * 4 + 2] = B;
+                    outPaper.data[(i*outWidth + k) * 4 + 3] = 255;
+                }
+            }
+            outCtx.putImageData(outPaper, 0, 0);
+        }
+      
+        function displayImage2() {
+              // 캔버스 크기를 결정
+            outCanvas2.height = outHeight;
+            outCanvas2.width = outWidth;
+
+            var R, G, B;
+            outPaper2 = outCtx2.createImageData(outWidth, outHeight);
+            for(var i=0; i<outHeight; i++) {
+                for (var k=0; k<outWidth; k++) {
+                    R = outImageArray2[0][i][k].charCodeAt(0); // Byte 문자를 숫자로.
+                    G = outImageArray2[1][i][k].charCodeAt(0); // Byte 문자를 숫자로.
+                    B = outImageArray2[2][i][k].charCodeAt(0); // Byte 문자를 숫자로.
+                    outPaper2.data[(i*outWidth + k) * 4 + 0] = R;
+                    outPaper2.data[(i*outWidth + k) * 4 + 1] = G;
+                    outPaper2.data[(i*outWidth + k) * 4 + 2] = B;
+                    outPaper2.data[(i*outWidth + k) * 4 + 3] = 255;
+                }
+            }
+            outCtx2.putImageData(outPaper2, 0, 0);
+        }
+      
+        function displayImage3() {
+              // 캔버스 크기를 결정
+            outCanvas3.height = outHeight;
+            outCanvas3.width = outWidth;
+
+            var R, G, B;
+            outPaper3 = outCtx3.createImageData(outWidth, outHeight);
+            for(var i=0; i<outHeight; i++) {
+                for (var k=0; k<outWidth; k++) {
+                    R = outImageArray3[0][i][k].charCodeAt(0); // Byte 문자를 숫자로.
+                    G = outImageArray3[1][i][k].charCodeAt(0); // Byte 문자를 숫자로.
+                    B = outImageArray3[2][i][k].charCodeAt(0); // Byte 문자를 숫자로.
+                    outPaper3.data[(i*outWidth + k) * 4 + 0] = R;
+                    outPaper3.data[(i*outWidth + k) * 4 + 1] = G;
+                    outPaper3.data[(i*outWidth + k) * 4 + 2] = B;
+                    outPaper3.data[(i*outWidth + k) * 4 + 3] = 255;
+                }
+            }
+            outCtx3.putImageData(outPaper3, 0, 0);
+        }
+      
+       
+       
+
+        function equalImage() {
+            openImage();
+            
+        }
+       
+
+        function addImage() {
+            
+            
+            // ***** 진짜 영상처리 알고리즘 *****
+            var value = parseInt(document.getElementById("lightSlider").value);
+            // var value = 100;
+            for (var rgb=0; rgb<3; rgb++) {
+                for(var i=0; i<inHeight; i++) {
+                    for (var k=0; k<inWidth; k++) {
+                        // 문자 --> 숫자
+                        pixel = outImageArray[rgb][i][k].charCodeAt(0);
+                        // ** 핵심 알고리즘 **
+                        if (pixel + value > 255)
+                            pixel = 255;
+                        else    
+                            pixel = value;
+                        // 숫자 --> 문자
+                        // outImageArray[rgb][i][k] = inImageArray[rgb][i][k] =String.fromCharCode(pixel) ;
+                        outImageArray[rgb][i][k] =String.fromCharCode(pixel) ;
+                    }
+                }
+            }
+            for (var rgb=0; rgb<3; rgb++) {
+                for(var i=0; i<inHeight; i++) {
+                    for (var k=0; k<inWidth; k++) {
+                        // 문자 --> 숫자
+                        pixel = outImageArray3[rgb][i][k].charCodeAt(0);
+                        // ** 핵심 알고리즘 **
+                        if (pixel + value > 255)
+                            pixel = 255;
+                        else    
+                            pixel = value;
+                        // 숫자 --> 문자
+                        // outImageArray[rgb][i][k] = inImageArray[rgb][i][k] =String.fromCharCode(pixel) ;
+                        outImageArray3[rgb][i][k] =String.fromCharCode(pixel) ;
+                    }
+                }
+            }
+            displayImage();
+            displayImage3();
+        }
+      
+        function Red() {
+            
+            
+            // ***** 진짜 영상처리 알고리즘 *****
+            var value = parseInt(document.getElementById("RSlider").value);
+            var R,G,B;
+            for(var i=0; i<inHeight; i++) {
+                for (var k=0; k<inWidth; k++) {
+                    
+                    R = outImageArray[0][i][k].charCodeAt();
+                    G = outImageArray[1][i][k].charCodeAt();
+                    B = outImageArray[2][i][k].charCodeAt();
+
+                    R = outImageArray2[0][i][k].charCodeAt();
+                    G = outImageArray2[1][i][k].charCodeAt();
+                    B = outImageArray2[2][i][k].charCodeAt();
+
+                    R = outImageArray3[0][i][k].charCodeAt();
+                    G = outImageArray3[1][i][k].charCodeAt();
+                    B = outImageArray3[2][i][k].charCodeAt();
+                    
+                    if(R>=240 && G>=240 && B>=240) {
+                        R=255;G=255;B=255;
+                    }
+
+                    else {
+                        R = value;
+                    }
+                    
+                    
+
+                    outImageArray[0][i][k] = String.fromCharCode(R);
+                    outImageArray[1][i][k] = String.fromCharCode(G);
+                    outImageArray[2][i][k] = String.fromCharCode(B);
+
+                    outImageArray2[0][i][k] = String.fromCharCode(R);
+                    outImageArray2[1][i][k] = String.fromCharCode(G);
+                    outImageArray2[2][i][k] = String.fromCharCode(B);
+
+                    outImageArray3[0][i][k] = String.fromCharCode(R);
+                    outImageArray3[1][i][k] = String.fromCharCode(G);
+                    outImageArray3[2][i][k] = String.fromCharCode(B);
+
+                }
+            }
+
+            displayImage();
+            displayImage2();
+        }
+        function Blue() {
+            // ***** 진짜 영상처리 알고리즘 *****
+            var value = parseInt(document.getElementById("BSlider").value);
+            var R,G,B;
+            for(var i=0; i<inHeight; i++) {
+                for (var k=0; k<inWidth; k++) {
+                    
+                    R = outImageArray[0][i][k].charCodeAt();
+                    G = outImageArray[1][i][k].charCodeAt();
+                    B = outImageArray[2][i][k].charCodeAt();
+
+                    R = outImageArray2[0][i][k].charCodeAt();
+                    G = outImageArray2[1][i][k].charCodeAt();
+                    B = outImageArray2[2][i][k].charCodeAt();
+
+                    R = outImageArray3[0][i][k].charCodeAt();
+                    G = outImageArray3[1][i][k].charCodeAt();
+                    B = outImageArray3[2][i][k].charCodeAt();
+                    
+                    if(R>=240 && G>=240 && B>=240) {
+                        R=255;G=255;B=255;
+                    }
+
+                    else {
+                        B=value;
+                    }
+                    
+                    
+
+                    outImageArray[0][i][k] = String.fromCharCode(R);
+                    outImageArray[1][i][k] = String.fromCharCode(G);
+                    outImageArray[2][i][k] = String.fromCharCode(B);
+
+                    outImageArray2[0][i][k] = String.fromCharCode(R);
+                    outImageArray2[1][i][k] = String.fromCharCode(G);
+                    outImageArray2[2][i][k] = String.fromCharCode(B);
+
+                    outImageArray3[0][i][k] = String.fromCharCode(R);
+                    outImageArray3[1][i][k] = String.fromCharCode(G);
+                    outImageArray3[2][i][k] = String.fromCharCode(B);
+
+                }
+            }
+
+            displayImage();
+            displayImage2();
+        }
+        function Green() { // ***** 진짜 영상처리 알고리즘 *****
+            var value = parseInt(document.getElementById("GSlider").value);
+            var R,G,B;
+            for(var i=0; i<inHeight; i++) {
+                for (var k=0; k<inWidth; k++) {
+                    
+                    R = outImageArray[0][i][k].charCodeAt();
+                    G = outImageArray[1][i][k].charCodeAt();
+                    B = outImageArray[2][i][k].charCodeAt();
+
+                    R = outImageArray2[0][i][k].charCodeAt();
+                    G = outImageArray2[1][i][k].charCodeAt();
+                    B = outImageArray2[2][i][k].charCodeAt();
+
+                    R = outImageArray3[0][i][k].charCodeAt();
+                    G = outImageArray3[1][i][k].charCodeAt();
+                    B = outImageArray3[2][i][k].charCodeAt();
+                    
+                    if(R>=230 && G>=230 && B>=230) {
+                        R=255;G=255;B=255;
+                    }
+
+                    else {
+                        G=value;
+                    }
+                    
+                    
+
+                    outImageArray[0][i][k] = String.fromCharCode(R);
+                    outImageArray[1][i][k] = String.fromCharCode(G);
+                    outImageArray[2][i][k] = String.fromCharCode(B);
+                    
+                    outImageArray2[0][i][k] = String.fromCharCode(R);
+                    outImageArray2[1][i][k] = String.fromCharCode(G);
+                    outImageArray2[2][i][k] = String.fromCharCode(B);
+
+                    outImageArray3[0][i][k] = String.fromCharCode(R);
+                    outImageArray3[1][i][k] = String.fromCharCode(G);
+                    outImageArray3[2][i][k] = String.fromCharCode(B);
+
+                }
+            }
+
+            displayImage();  
+            displayImage2();  
+        }
+
+
+    
+    </script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<style>
+    body{
+        background-image: url(세렝게티.gif);
+    }
+
+
+</style>
+<body onload='openImage()'>
+           
+
+            <input type="button" class= "btn hover1" id="BTS2" value="Show RGB chart"  onclick='window.open("RGB.html")'>
+        
+            <input type="button" id="BTS2" value="Reset" onclick='equalImage()'>
+
+            <style>
+                #A{
+                    position: absolute;
+            top: 100px;
+            left: 1000px;
+            width: 100px;
+            height: 100px;
+            background-color: rgb(214, 214, 162);
+            
+                }
+    
+                #B{
+                    position: absolute;
+            top: 100px;
+            left: 1400px;
+            width: 100px;
+            height: 100px;
+            background-color: rgb(214, 214, 162);
+            
+                }
+                #C{
+                    position: absolute;
+            top: 500px;
+            left: 1000px;
+            width: 100px;
+            height: 100px;
+            background-color: rgb(214, 214, 162);
+            
+                }
+                #D{
+                    position: absolute;
+            top: 500px;
+            left: 1400px;
+            width: 100px;
+            height: 100px;
+            background-color: rgb(214, 214, 162);
+            
+                }
+    
+                #BTS{
+                    height: 30px;
+                    background-color: #000000;
+                    border: none;
+                    color:#fff;
+                    display: inline-block;
+                    cursor: pointer;
+                }
+                #BTS2{
+                    height: 30px;
+                    background-color: #a05454;
+                    border: none;
+                    color:rgb(59, 211, 38);
+                    display: inline-block;
+                    cursor: pointer;
+                }
+            
+            .slider_range{
+                width: 60%;
+            -webkit-appearance: none;
+            height: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background-color: rgb(255, 255, 255);  
+            }    
+            .slider_range::-webkit-slider-thumb {
+           -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            background-color: rgb(0, 0, 0);
+            overflow: visible;
+            cursor: pointer;
+        }
+        .slidecontainer {
+            transform: translateY(-10px);
+        }
+            .slider_range2{
+                width: 60%;
+            -webkit-appearance: none;
+            height: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background-color: rgb(250, 43, 28);  
+            }    
+            .slider_range2::-webkit-slider-thumb {
+           -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            background-color:rgb(255, 255, 255);
+            overflow: visible;
+            cursor: pointer;
+        }
+        .slidecontainer {
+            transform: translateY(-10px);
+        }
+            .slider_range3{
+                width: 60%;
+            -webkit-appearance: none;
+            height: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background-color: rgb(45, 236, 45);  
+            }    
+            .slider_range3::-webkit-slider-thumb {
+           -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            background-color: rgb(255, 255, 255);
+            overflow: visible;
+            cursor: pointer; 
+        }
+        .slidecontainer {
+            transform: translateY(-10px);
+        }
+            .slider_range4{
+                width: 60%;
+            -webkit-appearance: none;
+            height: 10px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            background-color: rgba(13, 28, 235, 0.918);  
+            }    
+            .slider_range4::-webkit-slider-thumb {
+           -webkit-appearance: none;;
+            width: 20px;
+            height: 20px;
+            border-radius: 15px;
+            background-color: rgb(255, 255, 255);
+            overflow: visible;
+            cursor: pointer;
+        }
+        
+           
+            </style>
+            
+            <form>
+            <h3><span style="color:rgb(255, 255, 255)">Bright</span>
+            <div class = "Container">
+            <font id = "Slider__">0</font>
+            <p><td><input style = "width:35%;" class="slider_range" id="lightSlider"  type  ="range" min="0" max="200" value=0 onclick="addImage()"></td>
+                
+            <h3><span style="color:rgb(192, 1, 1)" >R</span>
+            <span style="color: red"><font id = "Slider__2" >0</font></span>
+           <p> <td><input style = "width:35%;" class="slider_range2" type="range" id="RSlider" min="0" max="255" value=0 onclick="Red()"></td>
+            
+            
+            <h3><span style="color:rgb(80, 255, 118)">G</span>
+            <span style="color: rgb(80, 255, 118)"><font id = "Slider__3">0</font>
+            <p><td><input style = "width:35%;" class="slider_range3" type="range" id="GSlider" min="0" max="255" value=0 onclick="Green()"></td>
+            
+            <h3><span style="color:blue">B</span>
+            <span style="color:blue"><font id = "Slider__4">0</font>
+            <p><td><input style = "width:35%;" class="slider_range4" type="range" id="BSlider" min="0" max="255" value=0 onclick="Blue()"></td>
+
+           
+                </div>
+            <script language = "javascript">
+
+                function ShowSliderValue(sVal)
+                {
+                    var obValueView = document.getElementById("Slider__");
+                    obValueView.innerHTML = sVal
+                }
+                function ShowSliderValue2(sVal)
+                {
+                    var obValueView = document.getElementById("Slider__2");
+                    obValueView.innerHTML = sVal
+                }
+                function ShowSliderValue3(sVal)
+                {
+                    var obValueView = document.getElementById("Slider__3");
+                    obValueView.innerHTML = sVal
+                }
+                function ShowSliderValue4(sVal)
+                {
+                    var obValueView = document.getElementById("Slider__4");
+                    obValueView.innerHTML = sVal
+                }
+              
+                
+                var RangeSlider = function(){
+                    var range = $('.slider_range');
+                    
+                    range.on('input', function(){		
+                        ShowSliderValue(this.value);
+                    });
+                };
+                var RangeSlider2 = function(){
+                    var range = $('.slider_range2');
+                    
+                    range.on('input', function(){		
+                        ShowSliderValue2(this.value);
+                    });
+                };
+                var RangeSlider3 = function(){
+                    var range = $('.slider_range3');
+                    
+                    range.on('input', function(){		
+                        ShowSliderValue3(this.value);
+                    });
+                };
+                var RangeSlider4 = function(){
+                    var range = $('.slider_range4');
+                    
+                    range.on('input', function(){		
+                        ShowSliderValue4(this.value);
+                    });
+                };
+              
+                
+                RangeSlider();
+                RangeSlider2();
+                RangeSlider3();
+                RangeSlider4();
+                
+                </script>
+            
+            </form>
+          
+        <div id="A" >
+            <canvas id='inCanvas' style="border:5px solid #000000;"></canvas>
+        </div>
+        <div id="B">
+            <canvas id='outCanvas' style="border:5px solid #000000;"></canvas>
+        </div>
+        <div id="C">
+            <canvas id='outCanvas2' style="border:5px solid #000000;"></canvas>
+        </div>
+        <div id="D">
+            <canvas id='outCanvas3' style="border:5px solid #000000;"></canvas>
+        </div>
+    
+
+</body>
+</html>

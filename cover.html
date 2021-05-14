@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+
+</head>
+<!--배경만들기-->
+<script>
+    
+    var colors = new Array(
+      [62,35,255],
+      [60,255,60],
+      [255,35,98],
+      [45,175,230],
+      [255,0,255],
+      [255,128,0]);
+    
+    var step = 0;
+  
+    var colorIndices = [0,1,2,3];
+    
+    //transition speed
+    var gradientSpeed = 0.006;
+    
+    function updateGradient()
+    {
+      
+      if ( $===undefined ) return;
+      
+    var c0_0 = colors[colorIndices[0]];
+    var c0_1 = colors[colorIndices[1]];
+    var c1_0 = colors[colorIndices[2]];
+    var c1_1 = colors[colorIndices[3]];
+    
+    var istep = 1 - step;
+    var r1 = Math.round(istep * c0_0[0] + step * c0_1[0]);
+    var g1 = Math.round(istep * c0_0[1] + step * c0_1[1]);
+    var b1 = Math.round(istep * c0_0[2] + step * c0_1[2]);
+    var color1 = "rgb("+r1+","+g1+","+b1+")";
+    
+    var r2 = Math.round(istep * c1_0[0] + step * c1_1[0]);
+    var g2 = Math.round(istep * c1_0[1] + step * c1_1[1]);
+    var b2 = Math.round(istep * c1_0[2] + step * c1_1[2]);
+    var color2 = "rgb("+r2+","+g2+","+b2+")";
+    
+     $('#gradient').css({
+       background: "-webkit-gradient(linear, left top, right top, from("+color1+"), to("+color2+"))"}).css({
+        background: "-moz-linear-gradient(left, "+color1+" 0%, "+color2+" 100%)"});
+      
+      step += gradientSpeed;
+      if ( step >= 1 )
+      {
+        step %= 1;
+        colorIndices[0] = colorIndices[1];
+        colorIndices[2] = colorIndices[3];
+        
+        //pick two new target color indices
+        //do not pick the same as the current one
+        colorIndices[1] = ( colorIndices[1] + Math.floor( 1 + Math.random() * (colors.length - 1))) % colors.length;
+        colorIndices[3] = ( colorIndices[3] + Math.floor( 1 + Math.random() * (colors.length - 1))) % colors.length;
+        
+      }
+    }
+    
+    setInterval(updateGradient,10);
+    </script>
+        <div id="gradient" >
+        <style>
+          
+        #gradient
+    {
+      width: 100%;
+      height: 800px;
+      padding: 0px;
+      margin: 0px;
+    }
+        </style>
+
+<!--버튼만들기-->
+<body>
+  <div class="header">JavaScript Project</div>
+  <div class="button-container-2">
+    <span class="mas">GO!</span>
+  <button type="button" name="Hover"onclick='window.open("colorP.html")'>Photo#</button>
+  </div>
+    <div class="button-container-1">
+      <span class="mas">GO!</span>
+    <button id='work' type="button" name="Hover"onclick='window.open("Project.html")'>Photo#(RGB)</button>
+  </div>
+
+  <div class="button-container-2">
+    <span class="mas">GO!</span>
+  <button type="button" name="Hover"onclick='window.open("RGB.html")'>RGB<br>chart</button>
+</div>
+
+<style>
+
+    
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.header {
+  text-align: center;
+  font-family: "Roboto", sans-serif;
+  font-size: 50px;
+  margin-top: 12vh;
+  color: rgb(51, 204, 37);
+}
+
+
+.button-container-1 {
+  position: relative;
+  width: 500px;
+  height: 100px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 6vh;
+  overflow: hidden;
+  border: 4px solid;
+  font-family: "Lato", sans-serif;
+  font-weight: 400;
+  font-size: 30px;
+  transition: 0.5s;
+  letter-spacing: 1px;
+  border-radius: 100px;
+}
+.button-container-1 button {
+  width: 101%;
+  height: 100%;
+  font-family: "Lato", sans-serif;
+  margin-left: auto;
+  margin-right: auto;
+  font-weight: 300;
+  font-size: 20px;
+  letter-spacing: 5px;
+  font-weight: bold;
+  background: rgba(0, 0, 0 ,0.5);
+  -webkit-mask: url("https://raw.githubusercontent.com/robin-dela/css-mask-animation/master/img/nature-sprite.png");
+  mask: url("https://raw.githubusercontent.com/robin-dela/css-mask-animation/master/img/nature-sprite.png");
+  -webkit-mask-size: 2300% 100%;
+  mask-size: 2300% 100%;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  -webkit-animation: ani2 0.7s steps(22) forwards;
+  animation: ani2 0.7s steps(22) forwards;
+}
+.button-container-1 button:hover {
+    font-size: 20px;
+  letter-spacing: 5px;
+  -webkit-animation: ani 0.7s steps(22) forwards;
+  animation: ani 0.7s steps(22) forwards;
+}
+
+.button-container-2 {
+  position: relative;
+  width: 500px;
+  height: 100px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 7vh;
+  overflow: hidden;
+  border: 4px solid rgb(0, 0, 0);
+  font-family: "Lato", sans-serif;
+  font-weight: 300;
+  transition: 0.5s;
+  letter-spacing: 1px;
+  border-radius: 150px;
+}
+.button-container-2 button {
+  width: 101%;
+  height: 100%;
+  font-family: "Lato", sans-serif;
+  font-weight: 300;
+  font-size: 20px;
+  font-weight: bold;
+  background:rgba(0, 0, 0 ,0.5);
+  -webkit-mask: url("https://raw.githubusercontent.com/robin-dela/css-mask-animation/master/img/urban-sprite.png");
+  mask: url("https://raw.githubusercontent.com/robin-dela/css-mask-animation/master/img/urban-sprite.png");
+  -webkit-mask-size: 3000% 100%;
+  mask-size: 3000% 100%;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+  -webkit-animation: ani2 0.7s steps(29) forwards;
+  animation: ani2 0.7s steps(29) forwards;
+}
+.button-container-2 button:hover {
+  -webkit-animation: ani 0.7s steps(29) forwards;
+  animation: ani 0.7s steps(29) forwards;
+}
+
+.mas {
+  position: absolute;
+  color: #000;
+  text-align: center;
+  width: 101%;
+  font-family: "Lato", sans-serif;
+  font-weight: 300;
+  position: absolute;
+  font-size: 30px;
+  margin-top: 28px;
+  overflow: hidden;
+  font-weight: bold;
+}
+
+@-webkit-keyframes ani {
+  from {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+  to {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+}
+@keyframes ani {
+  from {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+  to {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+}
+@-webkit-keyframes ani2 {
+  from {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+  to {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+}
+@keyframes ani2 {
+  from {
+    -webkit-mask-position: 100% 0;
+    mask-position: 100% 0;
+  }
+  to {
+    -webkit-mask-position: 0 0;
+    mask-position: 0 0;
+  }
+}
+a {
+  color: #00ff95;
+}
+</style>
+</body>
+</html>

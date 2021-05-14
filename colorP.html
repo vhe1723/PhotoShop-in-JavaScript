@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+   
+    <title></title>
+
+    <script>
+        document.documentElement.className = 'js';
+    </script>
+    <script>
+        var flag = 1;
+
+        function doLoad() {
+            this.video = document.getElementById('video');
+            this.c1 = document.getElementById('c1');
+            this.ctx1 = this.c1.getContext('2d');
+            this.c2 = document.getElementById('c2');
+            this.ctx2 = this.c2.getContext('2d');
+         
+
+            let self = this;
+            this.video.addEventListener('play', function () {
+                self.width = self.video.videoWidth/8;
+                self.height = self.video.videoHeight/8;
+                self.timerCallback();
+            }, false);
+        }
+
+        function timerCallback() {
+            if (this.video.paused || this.video.ended) {
+                return;
+            }
+                this.computeimageData();
+                let self = this;
+                setTimeout(function () {
+                    self.timerCallback();
+                }, 0);
+        
+        }
+
+        function computeimageData() {
+            this.ctx1.drawImage(this.video, 0, 0, this.width, this.height);
+            let imageData = this.ctx1.getImageData(0, 0, this.width, this.height);
+
+            inWidth = this.width;
+            inHeight = this.height;
+            inVideoArray = new Array(3); // 3장짜리 배열 (R, G, B)
+            for (var i = 0; i < 3; i++) {
+                inVideoArray[i] = new Array(inHeight);
+                for (var k = 0; k < inHeight; k++)
+                    inVideoArray[i][k] = new Array(inWidth);
+            }
+
+            // 출력된 캔버스에서 픽셀값 뽑기
+            var R, G, B, Alpha;
+            for (var i = 0; i < inHeight; i++) {
+                for (var k = 0; k < inWidth; k++) {
+                    px = (i * inWidth + k) * 4; // 1픽셀 = 4byte
+                    R = imageData.data[px + 0];
+                    G = imageData.data[px + 1];
+                    B = imageData.data[px + 2];
+                    // Alpha = imageData.data[px + 3];
+                    inVideoArray[0][i][k] = String.fromCharCode(R);
+                    inVideoArray[1][i][k] = String.fromCharCode(G);
+                    inVideoArray[2][i][k] = String.fromCharCode(B);
+                }
+            }
+
+            grayscale();
+        }
+
+        function grayscale() {
+            outHeight = inHeight;
+            outWidth = inWidth;
+            outImageArray = new Array(3); // 512짜리 1차원 배열
+            for (var i = 0; i < 3; i++) {
+                outImageArray[i] = new Array(outHeight); // 512짜리 1차원 배열
+                for (var k = 0; k < outHeight; k++)
+                    outImageArray[i][k] = new Array(outWidth);
+            }
+
+
+            // ***** 진짜 영상처리 알고리즘 *****
+            var R, G, B;
+            for (var i = 0; i < inHeight; i++) {
+                for (var k = 0; k < inWidth; k++) {
+                    R = inVideoArray[0][i][k].charCodeAt(0);
+                    G = inVideoArray[1][i][k].charCodeAt(0);
+                    B = inVideoArray[2][i][k].charCodeAt(0);
+
+                    var RGB = parseInt((R + G + B) / 3);
+
+                    outImageArray[0][i][inWidth - 1 - k] = String.fromCharCode(RGB);
+                    outImageArray[1][i][inWidth - 1 - k] = String.fromCharCode(RGB);
+                    outImageArray[2][i][inWidth - 1 - k] = String.fromCharCode(RGB);
+
+                }
+            }
+            var R, G, B;
+            outPaper = ctx2.createImageData(outWidth, outHeight);
+            for (var i = 0; i < outHeight; i++) {
+                for (var k = 0; k < outWidth; k++) {
+                    R = outImageArray[0][i][k].charCodeAt(0); // Byte 문자를 숫자로.
+                    G = outImageArray[1][i][k].charCodeAt(0); // Byte 문자를 숫자로.
+                    B = outImageArray[2][i][k].charCodeAt(0); // Byte 문자를 숫자로.
+                    outPaper.data[(i * outWidth + k) * 4 + 0] = R;
+                    outPaper.data[(i * outWidth + k) * 4 + 1] = G;
+                    outPaper.data[(i * outWidth + k) * 4 + 2] = B;
+                    outPaper.data[(i * outWidth + k) * 4 + 3] = 255;
+                }
+            }
+            ctx2.putImageData(outPaper, 0, 0);
+
+            //// 화소 영역 처리
+            var maskW = [[-1., -1., -1.],
+            [0., 0., 0.],
+            [1., 1., 1.]]
+
+            var maskH = [[1., 0., -1.],
+            [1., 0., -1.],
+            [1., 0., -1.]]
+            // 임시 입력 배열
+            for (var rgb = 0; rgb < 3; rgb++) {
+                tempInputArrayW = new Array(inHeight + 2); // 2칸 큼
+                for (var i = 0; i < inHeight + 2; i++)
+                    tempInputArrayW[i] = new Array(inWidth + 2);
+                // 임시 입력 배열 초기화
+                for (var i = 0; i < inHeight + 2; i++)
+                    for (var k = 0; k < inWidth + 2; k++)
+                        tempInputArrayW[i][k] = String.fromCharCode(127);
+                // 입력 배열 --> 임시 입력
+                for (var i = 0; i < inHeight; i++)
+                    for (var k = 0; k < inWidth; k++) {
+                        tempInputArrayW[i + 1][k + 1] = outImageArray[rgb][i][k];
+                    }
+                // 임시 출력 배열
+                tempOutputArrayW = new Array(outHeight);
+                for (var i = 0; i < outHeight; i++)
+                    tempOutputArrayW[i] = new Array(outWidth);
+
+                // ***** 진짜 영상처리 알고리즘 *****
+                for (var i = 0; i < inHeight; i++) {
+                    for (var k = 0; k < inWidth; k++) {
+                        var S = 0.0;
+                        for (var m = 0; m < 3; m++) {
+                            for (var n = 0; n < 3; n++) {
+                                S += maskW[m][n] * tempInputArrayW[i + m][k + n].charCodeAt(0);
+                            }
+                        }
+                        tempOutputArrayW[i][k] = S;
+                    }
+                }
+
+                tempInputArrayH = new Array(inHeight + 2); // 2칸 큼
+                for (var i = 0; i < inHeight + 2; i++)
+                    tempInputArrayH[i] = new Array(inWidth + 2);
+                // 임시 입력 배열 초기화
+                for (var i = 0; i < inHeight + 2; i++)
+                    for (var k = 0; k < inWidth + 2; k++)
+                        tempInputArrayH[i][k] = String.fromCharCode(127);
+                // 입력 배열 --> 임시 입력
+                for (var i = 0; i < inHeight; i++)
+                    for (var k = 0; k < inWidth; k++) {
+                        tempInputArrayH[i + 1][k + 1] = outImageArray[rgb][i][k];
+                    }
+                // 임시 출력 배열
+                tempOutputArrayH = new Array(outHeight); //
+                for (var i = 0; i < outHeight; i++)
+                    tempOutputArrayH[i] = new Array(outWidth);
+
+                // ***** 진짜 영상처리 알고리즘 *****
+                for (var i = 0; i < inHeight; i++) {
+                    for (var k = 0; k < inWidth; k++) {
+                        var S = 0.0;
+                        for (var m = 0; m < 3; m++) {
+                            for (var n = 0; n < 3; n++) {
+                                S += maskH[m][n] * tempInputArrayH[i + m][k + n].charCodeAt(0);
+                            }
+                        }
+                        tempOutputArrayH[i][k] = S;
+                    }
+                }
+
+                tempOutputArray = new Array(outHeight); //
+                for (var i = 0; i < outHeight; i++)
+                    tempOutputArray[i] = new Array(outWidth);
+
+                for (var i = 0; i < outHeight; i++)
+                    for (var k = 0; k < outWidth; k++)
+                        tempOutputArray[i][k] = Math.sqrt(Math.pow(tempOutputArrayW[i][k], 2) + Math.pow(tempOutputArrayH[i][k], 2));
+
+                for (var i = 0; i < outHeight; i++)
+                    for (var k = 0; k < outWidth; k++) {
+                        var v = tempOutputArray[i][k];
+                        if (v > 255.0)
+                            v = 255.0;
+                        if (v < 0)
+                            v = 0.0;
+                        outImageArray[rgb][i][k] = String.fromCharCode(v);
+                    }
+            }
+
+
+        }
+
+        
+    </script>
+</head>
+<style>
+    body{
+        background-image: url(4.gif);
+    }
+    .cx1{
+        position: absolute;
+            top: 180px;
+            left: 200px;
+            width: 50px;
+            height: 50px;
+            background-color: rgb(214, 214, 162);
+    }
+    .cx2{
+        position: absolute;
+            top: 180px;
+            left: 500px;
+            width: 50px;
+            height: 50px;
+            background-color: rgb(214, 214, 162);
+    }
+</style>
+<body class="demo-2" onload="doLoad()">
+    <header class="codrops-header">
+        <div class="nav">
+    </header>
+    <div class="video"><video id="video" src="2.mp4" controls autoplay width="1"
+            height="1"></video><br>
+    </div>
+
+    <div class="cx1">
+        <canvas id="c1" style="background-color: rgba(255, 255, 255, 0);" width="320" height="180"></canvas>
+    </div>
+
+    <div class="cx2">
+        <canvas id="c2" style="background-color: rgba(255, 255, 255, 0);" width="320" height="180"></canvas>
+    </div>
+
+</body>
+
+</html>
