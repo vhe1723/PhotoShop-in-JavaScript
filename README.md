@@ -2,7 +2,7 @@
 
 ##
 > # 개발환경
-> HTML5 / CSS /JavaScript / CSS 
+> HTML5 / CSS /JavaScript
 ##
 > # 프로젝트 계획
 >
