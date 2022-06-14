@@ -1,4 +1,4 @@
-# JS-Project
+# PhotoShop in JavaScript
 
 ##
 > # 개발환경
